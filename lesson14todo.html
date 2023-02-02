@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        /* .box {
+            background-color: red;
+            width: 150px;
+            height: 150px;
+            position: absolute;
+            z-index: 1;
+        } */
+        body {
+            background-color: #341f97;
+            color: #fff;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+
+        }
+
+        form {
+            display: flex;
+        }
+
+        .list {
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .list-item {
+            display: flex;
+            justify-content: space-between;
+            width: 400px;
+            background-color: #5f27cd;
+            padding: 8px 10px;
+        }
+
+        .list-item button {
+            background-color: #ff7675;
+            outline: none;
+            border: none;
+            border-radius: 3px;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .list-item button:active {
+            background-color: #d63031;
+        }
+
+        form input {
+            padding: 8px;
+        }
+
+        form button {
+            background-color: #48dbfb;
+            color: #fff;
+            outline: none;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- onkeydown onkeyup-->
+    <div class="container">
+        <h1 id="title">Todo List </h1>
+        <h2 id="titlee1">Выполненные задачи</h2>
+        <h2 id="titlee2">Невыполненные задачи</h2>
+        <form id="form" action="">
+            <input id="input" placeholder="напишите задачу" type="text">
+            <button type="submit">добавить</button>
+        </form>
+        <ul id="list" class="list">
+        </ul>
+    </div>
+
+
+    <script>
+        let container = document.getElementsByClassName('container')
+        let title = document.getElementById('title')
+        let input = document.getElementById('input')
+        let list = document.getElementById('list')
+        let form = document.getElementById('form')
+        let titlee1 = document.getElementById('titlee1')
+        let titlee2 = document.getElementById('titlee2')
+
+
+        let tasks = JSON.parse(localStorage.getItem('todo')) || [];
+
+        const filterTasks = () => {
+            const completedTasks = tasks.filter(elem => elem.completed === true)
+            const isActiveTask = tasks.filter(elem => elem.completed === false)
+            const newArr = [...isActiveTask, ...completedTasks]
+            tasks = newArr
+        }
+
+        const updateTask = () => {
+            localStorage.setItem('todo', JSON.stringify(tasks))
+        }
+
+        const htmlElements = () => {
+            list.innerHTML = ''
+            filterTasks()
+            const completedTasks = tasks.filter(elem => elem.completed === true).length
+            const isActiveTask = tasks.filter(elem => elem.completed === false).length
+            titlee1.innerText = `Выполненные задачи: ${completedTasks}`
+            titlee2.innerText = `Heвыполненные задачи ${isActiveTask}`
+            title.innerText = `Todo List: ${tasks.length}`
+            tasks.map((item, index) => {
+                return list.innerHTML += `
+                <li style='background-color: ${item.completed ? 'black' : '#5f27cd'}' class="list-item">
+                    <div class="text">
+                        <input onclick='changeCompl(${index})' ${item.completed ? 'checked' : null} type="checkbox">
+                        <span onclick='changeCompl(${index})' ${item.completed ? 'checked' : null}
+                        style=' text-decoration: ${item.completed ? 'line-through' : 'none'}'>${item.todo}</span>
+                    </div>
+                    <div class="btn">
+                        <button
+                        style='display: ${item.completed ? 'block' : 'none'}'
+                        onclick='deleteItem(${item.id}, ${index})'>delete</button>
+                    </div>
+                </li>`
+            })
+        }
+
+        const changeCompl = (index) => {
+            tasks[index].completed = !tasks[index].completed
+            htmlElements()
+            updateTask()
+        }
+        const deleteItem = (id) => {
+            // console.log(id)
+            // tasks.splice(index, 1) splice метод
+            tasks = tasks.filter(item => item.id !== id) // filter метод 
+            htmlElements()
+        }
+
+        const handleSumbit = (e) => {
+            e.preventDefault()
+            if (input.value) {
+                const newItem = {
+                    id: Date.now(),
+                    todo: input.value,
+                    completed: false
+                }
+                tasks = [...tasks, newItem]
+                htmlElements()
+                updateTask()
+                input.value = ''
+            } else {
+                alert('error')
+            }
+        }
+
+        // form.addEventListener('submit', handleSumbit)
+        form.onsubmit = handleSumbit
+        htmlElements()
+    </script>
+
+
+
+</body>
+
+</html>
